@@ -29,13 +29,13 @@
   },
   "homepage": "https://github.com/ntilwalli/cycle-mapboxgl#readme",
   "dependencies": {
-    "@cycle/rxjs-adapter": "^3.0.3",
     "jsondiffpatch": "^0.2.4",
-    "rxjs": "^5.0.0-rc.2"
+    "rxjs": "^5.2.0",
+    "@cycle/run": "^3.0.0"
   },
   "devDependencies": {
-    "@cycle/dom": "^14.0.0",
-    "@cycle/rxjs-run": "^3.0.3",
+    "@cycle/dom": "^16.0.0",
+    "@cycle/rxjs-run": "^6.1.0",
     "@types/chai": "^3.4.34",
     "@types/core-js": "^0.9.34",
     "@types/mocha": "^2.2.32",
@@ -50,6 +50,6 @@
     "rollup-plugin-node-resolve": "^2.0.0",
     "rollup-plugin-typescript": "^0.8.1",
     "typescript": "^2.2.0",
-    "xstream": "^7.0.0"
+    "xstream": "^10.3.0"
   }
 }

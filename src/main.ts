@@ -1,6 +1,6 @@
 import {Observable as O} from 'rxjs'
 import * as jsondiffpatch from 'jsondiffpatch'
-import rxjsSA from '@cycle/rxjs-adapter'
+import {adapt} from '@cycle/run/lib/adapt'
 
 const g_unanchoredLedger = {}
 
@@ -204,7 +204,7 @@ function renderRawRootElem$(descriptor$, accessToken) {
   return patch$
 }
 
-function makeInstanceEventsSelector(markers$, runSA) {
+function makeInstanceEventsSelector(markers$) {
   return function mapEvents(eventName) {
     if (typeof eventName !== `string`) {
       throw new Error(`MapboxGL driver's events() expects argument to be a ` +
@@ -220,12 +220,12 @@ function makeInstanceEventsSelector(markers$, runSA) {
     })
     .publish().refCount()
 
-    const observable = runSA ? runSA.adapt(out$, rxjsSA.streamSubscribe) : out$
+    const observable = out$
     return observable
   }
 }
 
-function makeMarkerInstanceSelector(diffMap$, runSA) {
+function makeMarkerInstanceSelector(diffMap$) {
   return function markerInstance(selector) {
     if (typeof selector !== `string`) {
       throw new Error(`MapboxGL driver's events() expects argument to be a ` +
@@ -242,15 +242,15 @@ function makeMarkerInstanceSelector(diffMap$, runSA) {
     })
     .publish().refCount()
 
-    const observable = runSA ? runSA.adapt(out$, rxjsSA.streamSubscribe) : out$
+    const observable = out$
     return {
       observable,
-      events: makeInstanceEventsSelector(out$, runSA)
+      events: makeInstanceEventsSelector(out$)
     }
   }
 }
 
-function makeMapEventsSelector(diffMap$, runSA) {
+function makeMapEventsSelector(diffMap$) {
   return function mapEvents(eventName) {
     if (typeof eventName !== `string`) {
       throw new Error(`MapboxGL driver's events() expects argument to be a ` +
@@ -262,12 +262,12 @@ function makeMapEventsSelector(diffMap$, runSA) {
     })
     .publish().refCount()
 
-    const observable = runSA ? runSA.adapt(out$, rxjsSA.streamSubscribe) : out$
+    const observable = out$
     return observable
   }
 }
 
-function makeMapSelector(applied$, runSA) {
+function makeMapSelector(applied$) {
   return function select(anchorId) {
     //console.log(`choosing map: ${anchorId}`)
     const diffMap$ = applied$
@@ -280,9 +280,9 @@ function makeMapSelector(applied$, runSA) {
       .publishReplay(1).refCount()
 
     return {
-      observable: runSA ? runSA.adapt(diffMap$, rxjsSA.streamSubscribe) : diffMap$,
-      events: makeMapEventsSelector(diffMap$, runSA),
-      markers: makeMarkerInstanceSelector(diffMap$, runSA),
+      observable: diffMap$,
+      events: makeMapEventsSelector(diffMap$),
+      markers: makeMarkerInstanceSelector(diffMap$),
     }
   }
 }
@@ -294,27 +294,19 @@ export function makeMapJSONDriver(accessToken: string) {
   //   mapboxgl.accessToken = accessToken
   // }
 
-  function mapJSONDriver(descriptor$, runSA) {
+  function mapJSONDriver(descriptor$) {
 
-    let adapted$
-    if (runSA) {
-      adapted$ = rxjsSA.adapt(descriptor$, runSA.streamSubscribe)
-        .publishReplay(1).refCount()
-    } else {
-      adapted$ = descriptor$
-        .publishReplay(1).refCount()
-    }
-
-    const  applied$ = renderRawRootElem$(adapted$, accessToken)
+    let adapted$ = adapt(descriptor$)
+    const applied$ = renderRawRootElem$(adapted$, accessToken)
 
 
     applied$.subscribe()
 
     return {
-      select: makeMapSelector(applied$, runSA)
+      select: makeMapSelector(applied$)
     }
   }
 
-  ;(<any> mapJSONDriver).streamAdapter = rxjsSA
+  //;(<any> mapJSONDriver).streamAdapter = rxjsSA
   return mapJSONDriver
 }

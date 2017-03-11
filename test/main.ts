@@ -1,5 +1,5 @@
 import {Observable as O} from 'rxjs'
-import Cycle from '@cycle/rxjs-run'
+import {run} from '@cycle/rxjs-run'
 import {makeDOMDriver, div} from '@cycle/dom'
 import {makeMapJSONDriver} from '../main'
 
@@ -49,7 +49,7 @@ function main(sources) {
 
 }
 
-Cycle.run(main, {
+run(main, {
   DOM: makeDOMDriver(`#app`),
   MapJSON: makeMapJSONDriver(
     `pk.eyJ1IjoibXJyZWRlYXJzIiwiYSI6ImNpbHJsZnJ3NzA4dHZ1bGtub2hnbGVnbHkifQ.ph2UH9MoZtkVB0_RNBOXwA`
