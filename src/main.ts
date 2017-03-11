@@ -4,12 +4,16 @@ import rxjsSA from '@cycle/rxjs-adapter'
 
 const g_unanchoredLedger = {}
 
-function fromEvent(diffMap, eventName) {
+function fromEvent(diffMap: any, eventName) {
   return O.create(observer => {
-    const handler = e => observer.next(e)
-    diffMap.on(eventName, handler)
-    return () => diffMap.off(eventName, handler)
-  })
+    const handler = ev => {
+      observer.next(ev)
+    }
+
+    const listener = google.maps.event.addListener(diffMap, eventName, handler)
+
+    return () => google.maps.event.removeListener(listener)
+  }).publish().refCount()
 }
 
 function diff(previous, current) {
@@ -22,166 +26,54 @@ function patch(diffMap, previousDescriptor, descriptor) {
   // console.log(`current`, descriptor)
   // console.log(`delta`, delta)
   if (delta) {
-    const {controls, map, sources, layers, canvas, options} = delta
-    if (controls) {
-      patchControls(diffMap, controls, descriptor.controls)
-    }
+    const {map, markers} = delta
 
-    if (map) {
-      patchMap(diffMap, map, descriptor.map, options)
-    }
-
-    if (sources) {
-      patchSources(diffMap, sources, descriptor.sources)
-    }
-
-    if (layers) {
-      patchLayers(diffMap, layers, descriptor.layers)
-    }
-
-    if (canvas) {
-      patchCanvas(diffMap, canvas, descriptor.canvas)
+    if (markers) {
+      patchMarkers(diffMap, markers, descriptor.sources)
     }
   }
 
   return descriptor
 }
 
-function patchMap(diffMap, mapDelta, mapDescriptor, options) {
-  if (mapDelta.zoom) {
-    diffMap.easeTo({
-      center: diffMap.getCenter(),
-      zoom: mapDescriptor.zoom
-    })
-  }
 
-  if (mapDelta.center) {
-    let newCenter = mapDescriptor.center
-    if (options && options.offset) {
-      const [x, y] = options.offset
-      const coordinates = diffMap.project(mapDescriptor.center)
-      const shiftedCenter = coordinates.sub({x, y})
-      newCenter = diffMap.unproject(shiftedCenter)
-    }
-    
-    diffMap.easeTo({
-      center: newCenter,
-      zoom: diffMap.getZoom()
-    })
-  }
-
-
-  if (mapDelta.dragPan) {
-    //console.log(`dragPan`, mapDescriptor.dragPan)
-    if(mapDescriptor.dragPan) {
-      //console.log(`enabling drag`)
-      diffMap.dragPan.enable()
-    } else {
-      //console.log(`disabling drag`)
-      diffMap.dragPan.disable()
-    }
-  }
-}
-
-function patchSources(diffMap, delta, descriptor) {
+function patchMarkers(diffMap, delta, descriptor) {
   if (delta) {
-    if (Array.isArray(delta)) {
-      const len = delta.length
-      let vals
-      switch (len) {
-        case 1: // Add
-          vals = delta[0]
-          for (let key in vals) {
-            if (vals.hasOwnProperty(key)) {
-              const data = vals[key]
-              diffMap.addSource(key, data)
-            }
-          }
-          break
-        case 2: // Modify
-          vals = delta[0]
-          for (let key in vals) {
-            if (vals.hasOwnProperty(key)) {
-              diffMap.removeSource(key)
-              diffMap.addSource(key, descriptor[key])
-            }
-          }
-          break
-        case 3: // Delete
-          vals = delta[0]
-          for (let key in vals) {
-            if (vals.hasOwnProperty(key)) {
-              diffMap.removeSource(key)
-            }
-          }
-          break
-        default:
-          throw new Error("Invalid delta length")
+    console.log('markers delta', delta)
+  }
+}
+
+function normalizeLngLat(val) {
+  if (val) {
+    if (Array.isArray(val) && val.length === 2) {
+      return {
+        lng: val[0],
+        lat: val[1]
       }
-    } else {
-      for (let key in delta) {
-        const newData = descriptor[key].data
-        diffMap.getSource(key).setData(newData)
-      }
+    } else if (val.lng && val.lat) {
+      return val
     }
   }
+
+  throw new Error("Invalid lng/lat info given")
 }
 
-function patchLayers(diffMap, delta, descriptor) {
-  if (delta) {
-    if (Array.isArray(delta)) {
-      const len = delta.length
-      let vals
-      switch (len) {
-        case 1: // Add
-          vals = delta[0]
-          for (let key in vals) {
-            if (vals.hasOwnProperty(key)) {
-              const data = vals[key]
-              diffMap.addLayer(data)
-            }
-          }
-          break
-        case 2: // Modify
-          vals = delta[0]
-          for (let key in vals) {
-            if (vals.hasOwnProperty(key)) {
-              diffMap.removeLayer(key)
-              diffMap.addLayer(descriptor[key])
-            }
-          }
-          break
-        case 3: // Delete
-          vals = delta[0]
-          for (let key in vals) {
-            if (vals.hasOwnProperty(key)) {
-              diffMap.removeLayer(key)
-            }
-          }
-          break
-        default:
-          throw new Error("Invalid delta length")
-      }
-    } 
-    // else {
-    //   // for (let key in delta) {
-    //   //   const newData = descriptor[key].data
-    //   //   diffMap.getSource(key).setData(newData)
-    //   // }
-    // }
-  }
-}
+function get_center_with_offset(map, center, zoom, offset) {
 
-function patchControls(diffMap, delta, descriptor) {
-
-}
-
-function patchCanvas(diffMap, delta, descriptor) {
-  if (delta) {
-    if (descriptor.style && descriptor.style.cursor) {
-      diffMap.getCanvas().style.cursor = descriptor.style.cursor
-    }
-  }
+    const offset_x = offset ? Array.isArray(offset) ? offset[0] : offset.x : 0
+    const offset_y = offset ? Array.isArray(offset) ? offset[1] : offset.y : 0
+    //const stuff = new google.maps.LatLng(normalizeLngLat(center))
+    const point1 = map.getProjection().fromLatLngToPoint(
+        (center instanceof google.maps.LatLng) ? center : new google.maps.LatLng(normalizeLngLat(center))
+    );
+    const point2 = new google.maps.Point(
+        ( (typeof(offset_x) == 'number' ? offset_x : 0) / Math.pow(2, zoom)) || 0,
+        ( (typeof(offset_y) == 'number' ? offset_y : 0) / Math.pow(2, zoom)) || 0
+    );  
+    return map.getProjection().fromPointToLatLng(new google.maps.Point(
+        point1.x - point2.x,
+        point1.y + point2.y
+    ));
 }
 
 
@@ -197,65 +89,47 @@ function diffAndPatch(descriptor) {
   } else {
     let diffMap = (<any> anchor).diffMap
     if (!diffMap) {
-      const {controls, map, sources, layers, canvas, options} = descriptor
-      diffMap = new mapboxgl.Map(descriptor.map)
+      const {map, markers} = descriptor
+      const {center, zoom, offset} = map
+
+      if (!center || !zoom) {
+        throw new Error("Map descriptor requires center and zoom")
+      }
+
+      diffMap = new google.maps.Map(anchor, {
+        center: normalizeLngLat(center),
+        zoom,
+        disableDefaultUI: true,
+        draggable: !!(map && (map.draggable || map.dragPan)),//false,
+        scrollwheel: !!(map && (map.scrollwheel || map.scrollZoom)),//false,
+        zoomControl: !!(map && map.scrollZoom),
+        mapTypeControl: false,
+        scaleControl: false,
+        streetViewControl: false,
+        rotateControl: false,
+        fullscreenControl: false
+      })
+
+      const map_markers = {}
+      Object.keys(markers).forEach(key => {
+        const m = markers[key]
+        map_markers[key] = new google.maps.Marker({
+          position: normalizeLngLat(m.lng_lat),
+          map: diffMap
+        })
+      }) 
+
+      diffMap.markers = map_markers
       
       return O.create(observer => {
-        diffMap.on('load', function () {
-          /*** HACK to allow for enable/disable from outset */
-          diffMap.dragPan.disable()
-          diffMap.dragPan.enable()
-          /*** End HACK */
-
-          if (controls) {
-
-          }
-
-          if (sources) {
-            for (let key in sources) {
-              if (sources.hasOwnProperty(key)) {
-                diffMap.addSource(key, sources[key])
-              }
-            }
-          }
-
-          if (layers) {
-            for (let key in layers) {
-              if (layers.hasOwnProperty(key)) {
-                diffMap.addLayer(layers[key])
-              }
-            }
-          }
-
-          if (canvas) {
-            if (canvas.style && canvas.style.cursor) {
-              diffMap.getCanvas().style.cursor = canvas.style.cursor
-            }
-          }
-
-          if (options && options.offset) {
-            const [x, y] = options.offset
-            const coordinates = diffMap.project(diffMap.getCenter())
-            const shiftedCenter = coordinates.sub({x, y})
-            const newCenter = diffMap.unproject(shiftedCenter)
-            diffMap.setCenter(newCenter)
-          }
-
-          if (map && map.hasOwnProperty('scrollZoom')) {
-            if (!map.scrollZoom) {
-              diffMap.scrollZoom.disable()
-            }
-          }
-
-          if (map && map.hasOwnProperty('dragPan')) {
-            if (!map.dragPan) {
-              diffMap.dragPan.disable()
-            }
-          }
-
-
+        diffMap.addListener('tilesloaded', function () {
           ;(<any> anchor).diffMap = diffMap
           ;(<any> anchor).previousDescriptor = descriptor
+
+          if (offset) {
+            diffMap.setCenter(get_center_with_offset(diffMap, center, zoom, offset))
+          }
+
           observer.next(descriptor)
           observer.complete()
         })
@@ -270,9 +144,11 @@ function diffAndPatch(descriptor) {
         ;(<any> anchor).diffMapProcessing = false
 
         const queued = (<any> anchor).descriptorQueue
-        if (queued && Array.isArray(queued) && queued.length) {
-          const d = queued.shift()
-          return diffAndPatch(d)
+        if (queued && Array.isArray(queued)) {
+          while (queued.length) {
+            const d = queued.shift()
+            return diffAndPatch(d)
+          }
         }
 
         return out
@@ -328,29 +204,54 @@ function renderRawRootElem$(descriptor$, accessToken) {
   return patch$
 }
 
-function makeQueryRenderedFilter(diffMap$, event$, runSA) {
-  return function queryRenderedFilter(info) {
-    const out$ = diffMap$.switchMap(diffMap => {
-      return event$.map(e => {
-        const layers = info && info.layers && info.layers.filter(x => diffMap.getLayer(x))
-        if (layers) {
-          const features = diffMap.queryRenderedFeatures(e.point, {layers})
-          return features
-        } 
+function makeInstanceEventsSelector(markers$, runSA) {
+  return function mapEvents(eventName) {
+    if (typeof eventName !== `string`) {
+      throw new Error(`MapboxGL driver's events() expects argument to be a ` +
+        `string representing the event type to listen for.`)
+    }
 
-        return undefined
-      })
-      //.filter(x => x.length)
-      .publish().refCount()
+    const out$ = markers$.switchMap(markers => {
+      if (markers && Array.isArray(markers) && markers.length) {
+        return O.merge(...markers.map(m => fromEvent(m, eventName)))
+      } else {
+        return O.never()
+      }
     })
+    .publish().refCount()
 
     const observable = runSA ? runSA.adapt(out$, rxjsSA.streamSubscribe) : out$
     return observable
   }
 }
 
-function makeEventsSelector(diffMap$, runSA) {
-  return function events(eventName) {
+function makeMarkerInstanceSelector(diffMap$, runSA) {
+  return function markerInstance(selector) {
+    if (typeof selector !== `string`) {
+      throw new Error(`MapboxGL driver's events() expects argument to be a ` +
+        `string representing the event type to listen for.`)
+    }
+
+    const out$ = diffMap$.map(diffMap => {
+      const markers = diffMap.markers
+      if (selector === '*') {
+        return Object.keys(markers).map(key => markers[key])
+      } else {
+        return [markers[selector]]
+      }
+    })
+    .publish().refCount()
+
+    const observable = runSA ? runSA.adapt(out$, rxjsSA.streamSubscribe) : out$
+    return {
+      observable,
+      events: makeInstanceEventsSelector(out$, runSA)
+    }
+  }
+}
+
+function makeMapEventsSelector(diffMap$, runSA) {
+  return function mapEvents(eventName) {
     if (typeof eventName !== `string`) {
       throw new Error(`MapboxGL driver's events() expects argument to be a ` +
         `string representing the event type to listen for.`)
@@ -362,10 +263,7 @@ function makeEventsSelector(diffMap$, runSA) {
     .publish().refCount()
 
     const observable = runSA ? runSA.adapt(out$, rxjsSA.streamSubscribe) : out$
-    return {
-      observable,
-      queryRenderedFilter: makeQueryRenderedFilter(diffMap$, out$, runSA)
-    }
+    return observable
   }
 }
 
@@ -383,17 +281,18 @@ function makeMapSelector(applied$, runSA) {
 
     return {
       observable: runSA ? runSA.adapt(diffMap$, rxjsSA.streamSubscribe) : diffMap$,
-      events: makeEventsSelector(diffMap$, runSA)
+      events: makeMapEventsSelector(diffMap$, runSA),
+      markers: makeMarkerInstanceSelector(diffMap$, runSA),
     }
   }
 }
 
 export function makeMapJSONDriver(accessToken: string) {
-  if (!accessToken || (typeof(accessToken) !== 'string')) throw new Error(`MapDOMDriver requires an access token.`)
+  // if (!accessToken || (typeof(accessToken) !== 'string')) throw new Error(`MapDOMDriver requires an access token.`)
 
-  if(!mapboxgl.accessToken) {
-    mapboxgl.accessToken = accessToken
-  }
+  // if(!mapboxgl.accessToken) {
+  //   mapboxgl.accessToken = accessToken
+  // }
 
   function mapJSONDriver(descriptor$, runSA) {
 
