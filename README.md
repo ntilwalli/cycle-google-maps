@@ -1,2 +1,2 @@
-# cycle-mapboxgl
-CycleJS driver for MapboxGL javascript map component
+# cycle-google-maps
+Experimental CycleJS driver for Google Maps V3 Javascript API
