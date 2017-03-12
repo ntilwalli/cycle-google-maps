@@ -111,14 +111,20 @@ function diffAndPatch(descriptor) {
       })
 
       const map_markers = {}
-      Object.keys(markers).forEach(key => {
-        const m = markers[key]
-        map_markers[key] = new google.maps.Marker({
-          ...m,
-          position: normalizeLngLat(m.position),
-          map: diffMap
-        })
-      }) 
+      if (markers) {
+        if (typeof markers === 'object' && markers !== null) {
+          Object.keys(markers).forEach(key => {
+            const m = markers[key]
+            map_markers[key] = new google.maps.Marker({
+              ...m,
+              position: normalizeLngLat(m.position),
+              map: diffMap
+            })
+          }) 
+        } else {
+          throw new Error ('Descriptor markers must be an object')
+        }
+      }
 
       diffMap.markers = map_markers
       
