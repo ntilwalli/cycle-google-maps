@@ -51,5 +51,5 @@ function main(sources) {
 
 Cycle.run(main, {
   DOM: makeDOMDriver(`#app`),
-  MapJSON: makeMapJSONDriver()
+  MapJSON: makeMapJSONDriver(`AIzaSyBsiEUUhXmkIONHhWErFekOuSSz3-GKAIU`)
 })
