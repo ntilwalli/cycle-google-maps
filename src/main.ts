@@ -43,6 +43,9 @@ function patch(diffMap, previousDescriptor, descriptor) {
 function patchMap(diffMap, delta, descriptor) {
   if (delta) {
     console.log('map delta', delta)
+    if (delta.center) {
+      diffMap.setCenter(normalizeLngLat(descriptor.center))
+    }
   }
 }
 
