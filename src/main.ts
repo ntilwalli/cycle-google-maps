@@ -28,6 +28,10 @@ function patch(diffMap, previousDescriptor, descriptor) {
   if (delta) {
     const {map, markers} = delta
 
+    if (map) {
+      patchMap(diffMap, markers, descriptor.sources)
+    }
+
     if (markers) {
       patchMarkers(diffMap, markers, descriptor.sources)
     }
@@ -36,6 +40,11 @@ function patch(diffMap, previousDescriptor, descriptor) {
   return descriptor
 }
 
+function patchMap(diffMap, delta, descriptor) {
+  if (delta) {
+    console.log('map delta', delta)
+  }
+}
 
 function patchMarkers(diffMap, delta, descriptor) {
   if (delta) {
