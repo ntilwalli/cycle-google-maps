@@ -18,7 +18,7 @@ function main(sources) {
 
   const markers = {
     "1": {
-      lng_lat: {lng: -74.5, lat: 40}
+      position: {lng: -74.5, lat: 40}
     }
   }
 
@@ -51,7 +51,5 @@ function main(sources) {
 
 Cycle.run(main, {
   DOM: makeDOMDriver(`#app`),
-  MapJSON: makeMapJSONDriver(
-    `pk.eyJ1IjoibXJyZWRlYXJzIiwiYSI6ImNpbHJsZnJ3NzA4dHZ1bGtub2hnbGVnbHkifQ.ph2UH9MoZtkVB0_RNBOXwA`
-  )
+  MapJSON: makeMapJSONDriver()
 })
