@@ -29,11 +29,11 @@ function patch(diffMap, previousDescriptor, descriptor) {
     const {map, markers} = delta
 
     if (map) {
-      patchMap(diffMap, markers, descriptor.sources)
+      patchMap(diffMap, map, descriptor.map)
     }
 
     if (markers) {
-      patchMarkers(diffMap, markers, descriptor.sources)
+      patchMarkers(diffMap, markers, descriptor.markers)
     }
   }
 
