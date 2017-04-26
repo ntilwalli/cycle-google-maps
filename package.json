@@ -1,7 +1,7 @@
 {
-  "name": "cycle-mapboxgl",
-  "version": "0.0.12",
-  "description": "CycleJS driver for Mapbox GL using jsondiffpatch",
+  "name": "cycle-google-maps",
+  "version": "1.0.0",
+  "description": "CycleJS driver for Google Maps API V3 using jsondiffpatch",
   "jsnext:main": "./lib/es6/main.js",
   "main": "./lib/cjs/main.js",
   "esnext:types": "./lib/es6/main.d.ts",
@@ -19,7 +19,7 @@
   },
   "keywords": [
     "cyclejs",
-    "mapbox-gl",
+    "google-maps",
     "jsondiffpatch"
   ],
   "author": "Nikhil Tilwalli",
@@ -31,13 +31,12 @@
   "dependencies": {
     "jsondiffpatch": "^0.2.4",
     "rxjs": "^5.2.0",
-    "@cycle/run": "^3.0.0"
+    "@cycle/run": "^3.1.0"
   },
   "devDependencies": {
-    "@cycle/dom": "^16.0.0",
-    "@cycle/rxjs-run": "^6.1.0",
+    "@cycle/dom": "^17.1.0",
+    "@cycle/rxjs-run": "^7.0.0",
     "@types/chai": "^3.4.34",
-    "@types/core-js": "^0.9.34",
     "@types/mocha": "^2.2.32",
     "@types/google-maps": "^3.2.0",
     "@types/geojson": "^1.0.0",
