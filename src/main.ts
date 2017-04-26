@@ -221,7 +221,7 @@ function makeInstanceEventsSelector(markers$) {
     .publish().refCount()
 
     const observable = out$
-    return observable
+    return adapt(observable)
   }
 }
 
@@ -244,7 +244,7 @@ function makeMarkerInstanceSelector(diffMap$) {
 
     const observable = out$
     return {
-      observable,
+      observable: adapt(observable),
       events: makeInstanceEventsSelector(out$)
     }
   }
@@ -263,7 +263,7 @@ function makeMapEventsSelector(diffMap$) {
     .publish().refCount()
 
     const observable = out$
-    return observable
+    return adapt(observable)
   }
 }
 
@@ -280,7 +280,7 @@ function makeMapSelector(applied$) {
       .publishReplay(1).refCount()
 
     return {
-      observable: diffMap$,
+      observable: adapt(diffMap$),
       events: makeMapEventsSelector(diffMap$),
       markers: makeMarkerInstanceSelector(diffMap$),
     }
@@ -296,7 +296,7 @@ export function makeMapJSONDriver(accessToken: string) {
 
   function mapJSONDriver(descriptor$) {
 
-    let adapted$ = adapt(descriptor$)
+    let adapted$ = O.from(descriptor$)
     const applied$ = renderRawRootElem$(adapted$, accessToken)
 
 
