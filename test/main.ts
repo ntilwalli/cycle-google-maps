@@ -18,7 +18,7 @@ function main(sources) {
 
   const markers = {
     "1": {
-      lng_lat: {lng: -74.5, lat: 40}
+      position: {lng: -74.5, lat: 40}
     }
   }
 

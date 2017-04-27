@@ -114,7 +114,7 @@ function diffAndPatch(descriptor) {
       Object.keys(markers).forEach(key => {
         const m = markers[key]
         map_markers[key] = new google.maps.Marker({
-          position: normalizeLngLat(m.lng_lat),
+          position: normalizeLngLat(m.position),
           map: diffMap
         })
       }) 
