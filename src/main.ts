@@ -111,15 +111,19 @@ function diffAndPatch(descriptor) {
       })
 
       const map_markers = {}
-      Object.keys(markers).forEach(key => {
-        const m = markers[key]
-        map_markers[key] = new google.maps.Marker({
-          position: normalizeLngLat(m.position),
-          map: diffMap
-        })
-      }) 
+      if (markers) {
+        Object.keys(markers).forEach(key => {
+          const m = markers[key]
+          map_markers[key] = new google.maps.Marker({
+            position: normalizeLngLat(m.position),
+            map: diffMap
+          })
+        }) 
 
-      diffMap.markers = map_markers
+        diffMap.markers = map_markers
+      }
+
+
       
       return O.create(observer => {
         diffMap.addListener('tilesloaded', function () {
@@ -235,7 +239,7 @@ function makeMarkerInstanceSelector(diffMap$) {
     const out$ = diffMap$.map(diffMap => {
       const markers = diffMap.markers
       if (selector === '*') {
-        return Object.keys(markers).map(key => markers[key])
+        return markers ? Object.keys(markers).map(key => markers[key]) : []
       } else {
         return [markers[selector]]
       }

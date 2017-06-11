@@ -1,6 +1,6 @@
 {
   "name": "cycle-google-maps",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "CycleJS driver for Google Maps API V3 using jsondiffpatch",
   "jsnext:main": "./lib/es6/main.js",
   "main": "./lib/cjs/main.js",
