@@ -28,18 +28,35 @@ function patch(diffMap, previousDescriptor, descriptor) {
   if (delta) {
     const {map, markers} = delta
 
+    if (map) {
+      patchMap(diffMap, map, descriptor.map)
+    }
+
     if (markers) {
-      patchMarkers(diffMap, markers, descriptor.sources)
+      patchMarkers(diffMap, markers, descriptor.markers)
     }
   }
 
   return descriptor
 }
 
+function patchMap(diffMap, mapDelta, mapDescriptor) {
+  if (mapDelta.zoom) {
+    const newZoom = mapDescriptor.zoom
+    diffMap.setZoom(newZoom)
+  }
+
+  if (mapDelta.center) {
+    let offset = mapDescriptor.offset
+    let center = mapDescriptor.center
+    let newCenter = offset ? get_center_with_offset(diffMap, center, diffMap.getZoom(), offset) : normalizeLngLat(center)
+    diffMap.setCenter(newCenter)
+  }
+}
 
 function patchMarkers(diffMap, delta, descriptor) {
   if (delta) {
-    console.log('markers delta', delta)
+    //console.log('markers delta', delta)
   }
 }
 
@@ -126,16 +143,25 @@ function diffAndPatch(descriptor) {
 
       
       return O.create(observer => {
-        diffMap.addListener('tilesloaded', function () {
-          ;(<any> anchor).diffMap = diffMap
+        const listener_id = diffMap.addListener('tilesloaded', function () {
+          ;(<any> anchor).diffMap = diffMap 
           ;(<any> anchor).previousDescriptor = descriptor
 
           if (offset) {
-            diffMap.setCenter(get_center_with_offset(diffMap, center, zoom, offset))
+            diffMap.setCenter(
+              get_center_with_offset(
+                diffMap, 
+                center, 
+                zoom, 
+                offset
+              )
+            )
+
           }
 
           observer.next(descriptor)
           observer.complete()
+          google.maps.event.removeListener(listener_id)
         })
       })
     } else {
@@ -170,7 +196,7 @@ function diffAndPatch(descriptor) {
   }
 }
 
-function renderRawRootElem$(descriptor$, accessToken) {
+function renderRawRootElem$(descriptor$, accessToken?) {
 
   const mutation$ = O.create(observer => {
     const mObserver = new MutationObserver(m => observer.next(m))
@@ -291,7 +317,7 @@ function makeMapSelector(applied$) {
   }
 }
 
-export function makeMapJSONDriver(accessToken: string) {
+export function makeMapJSONDriver(accessToken?: string) {
   // if (!accessToken || (typeof(accessToken) !== 'string')) throw new Error(`MapDOMDriver requires an access token.`)
 
   // if(!mapboxgl.accessToken) {

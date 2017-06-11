@@ -31,7 +31,7 @@ function main(sources) {
       zoom: 9, // starting zoom,
       dragPan: true,
       scrollZoom: false,
-      offset: [50, 50]
+      offset: [500, 50]
     },
     markers
   }
@@ -40,7 +40,17 @@ function main(sources) {
     DOM: O.of(div([
       div(`#${anchorId}`, []),
     ])),
-    MapJSON: O.of(descriptor)
+    MapJSON: O.merge(
+      O.of(descriptor),
+      O.of(copy(descriptor)).delay(2000).map(d => {
+        d.map.center = [-80, 50]
+        return d
+      }),
+      O.of(copy(descriptor)).delay(4000).map(d => {
+        d.map.zoom = 16
+        return d
+      })
+    )
   }
 
 
@@ -49,9 +59,9 @@ function main(sources) {
 
 }
 
+const copy = v => JSON.parse(JSON.stringify(v))
+
 run(main, {
   DOM: makeDOMDriver(`#app`),
-  MapJSON: makeMapJSONDriver(
-    `pk.eyJ1IjoibXJyZWRlYXJzIiwiYSI6ImNpbHJsZnJ3NzA4dHZ1bGtub2hnbGVnbHkifQ.ph2UH9MoZtkVB0_RNBOXwA`
-  )
+  MapJSON: makeMapJSONDriver()
 })
