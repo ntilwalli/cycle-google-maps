@@ -61,7 +61,7 @@ function patchMarkers(diffMap, delta, descriptor) {
     Object.keys(delta).forEach(key => {
       const diff = delta[key]
       if (diff.position) {
-        markers[key].setPosition(normalizeLngLat(descriptor.markers[key].position))
+        markers[key].setPosition(normalizeLngLat(descriptor[key].position))
       }
     })
 

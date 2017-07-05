@@ -30,10 +30,16 @@ function main(sources) {
       center: [-74.50, 40], // starting position
       zoom: 9, // starting zoom,
       dragPan: true,
-      scrollZoom: false,
-      offset: [500, 50]
+      scrollZoom: true,
+      offset: [0, 0]
     },
     markers
+  }
+
+const moved_markers = {
+    "1": {
+      position: {lng: -80, lat: 50}
+    }
   }
 
   return {
@@ -42,12 +48,19 @@ function main(sources) {
     ])),
     MapJSON: O.merge(
       O.of(descriptor),
-      O.of(copy(descriptor)).delay(2000).map(d => {
+      // O.of(copy(descriptor)).delay(1000).map(d => {
+      //   d.map.center = [-80, 50]
+      //   return d
+      // }),
+      // O.of(copy(descriptor)).delay(2000).map(d => {
+      //   d.map.center = [-80, 50]
+      //   d.map.zoom = 16
+      //   return d
+      // }),
+      O.of(copy(descriptor)).delay(3000).map(d => {
         d.map.center = [-80, 50]
-        return d
-      }),
-      O.of(copy(descriptor)).delay(4000).map(d => {
-        d.map.zoom = 16
+        // d.map.zoom = 16
+        d.markers = moved_markers
         return d
       })
     )
