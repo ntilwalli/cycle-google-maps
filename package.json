@@ -1,15 +1,20 @@
 {
   "name": "cycle-google-maps",
+<<<<<<< HEAD
   "version": "0.0.7",
   "description": "CycleJS driver for Google Maps V3 using jsondiffpatch",
+=======
+  "version": "3.0.0",
+  "description": "CycleJS driver for Google Maps API V3 using jsondiffpatch",
+>>>>>>> unified
   "jsnext:main": "./lib/es6/main.js",
   "main": "./lib/cjs/main.js",
   "esnext:types": "./lib/es6/main.d.ts",
   "types": "./lib/cjs/main.d.ts",
   "scripts": {
     "build": "tsc",
-    "dist": "rollup --config rollup.config.cjs.js",
-    "test": "rollup --config rollup.config.test.js -w & sleep 8; live-server --port=4000",
+    "dist": "webpack --config webpack.config.js",
+    "test": "webpack --config webpack.config.test.js -w & sleep 8; live-server --port=4001",
     "prepublish": "npm run clean; npm run build; npm run dist",
     "clean": "rm -rf lib; rm -rf dist"
   },
@@ -29,27 +34,29 @@
   },
   "homepage": "https://github.com/ntilwalli/cycle-google-maps#readme",
   "dependencies": {
+<<<<<<< HEAD
     "@cycle/rxjs-adapter": "^3.0.3",
     "jsondiffpatch": "^0.2.4",
     "rxjs": "^5.2.0"
+=======
+    "@cycle/run": "^3.4.0",
+    "jsondiffpatch": "^0.2.5",
+    "rxjs": "^5.5.2"
+>>>>>>> unified
   },
   "devDependencies": {
-    "@cycle/dom": "^14.0.0",
-    "@cycle/rxjs-run": "^3.0.3",
+    "@cycle/dom": "^19.3.0",
+    "@cycle/rxjs-run": "^7.3.0",
     "@types/chai": "^3.4.34",
-    "@types/core-js": "^0.9.34",
-    "@types/mocha": "^2.2.32",
-    "@types/google-maps": "^3.2.0",
     "@types/geojson": "^1.0.0",
+    "@types/google-maps": "^3.2.0",
+    "@types/mocha": "^2.2.32",
+    "awesome-typescript-loader": "^3.3.0",
     "chai": "^3.5.0",
+    "lodash": "^4.17.4",
     "mocha": "^3.1.0",
-    "rollup-plugin-commonjs": "^8.0.0",
-    "rollup-plugin-json": "^2.1.0",
-    "rollup-plugin-node-builtins": "^2.1.0",
-    "rollup-plugin-node-globals": "^1.1.0",
-    "rollup-plugin-node-resolve": "^2.0.0",
-    "rollup-plugin-typescript": "^0.8.1",
-    "typescript": "^2.2.0",
-    "xstream": "^7.0.0"
+    "typescript": "^2.3.4",
+    "webpack": "^3.8.1",
+    "xstream": "^11.0.0"
   }
 }
