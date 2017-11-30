@@ -227,6 +227,7 @@ function patch(diff_map, previousDescriptor, descriptor) {
         patchInfoWindows(diff_map, info_windows, descriptor.info_windows)
       }
     }
+    google.maps.event.trigger(diff_map, 'resize')
   } else {
     google.maps.event.trigger(diff_map, 'resize')
   }
@@ -297,23 +298,37 @@ function patchMarkers(diff_map, delta, descriptor) {
       } else {
         Object.keys(diff).forEach(property => {
           const marker_diff = diff[property]
-          if (isAdded(marker_diff)) {
+          if (Array.isArray(marker_diff)) {
+            if (isAdded(marker_diff)) {
 
-          } else if (isUpdated(marker_diff)) {
-            const update = marker_diff[1]
+            } else if (isUpdated(marker_diff)) {
+              const update = marker_diff[1]
+              if (property === 'position') {
+                markers[key].setPosition(normalizeLngLat(update))
+              }
+              if (property === 'title') {
+                markers[key].setTitle(update)
+              }
+    
+              if (property === 'icon') {
+                markers[key].setIcon(update)
+              }
+    
+            } else if (isDeleted(marker_diff)) {
+
+            }
+          } else {
+            const value = descriptor[key][property]
             if (property === 'position') {
-              markers[key].setPosition(normalizeLngLat(update))
+              markers[key].setPosition(normalizeLngLat(value))
             }
             if (property === 'title') {
-              markers[key].setTitle(update)
+              markers[key].setTitle(value)
             }
   
             if (property === 'icon') {
-              markers[key].setIcon(update)
+              markers[key].setIcon(value)
             }
-  
-          } else if (isDeleted(marker_diff)) {
-
           }
         })
       }

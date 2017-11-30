@@ -126,8 +126,8 @@ function mapview(state$) {
         //style: `mapbox://styles/mapbox/bright-v9`, // stylesheet location
         center: [center.lng, center.lat], // starting position
         zoom: 9, // starting zoom,
-        dragPan: true,
-        scrollZoom: true,
+        drag_pan: true,
+        scroll_zoom: true,
         offset: [0, 0]
       },
       markers
