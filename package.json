@@ -1,12 +1,7 @@
 {
   "name": "cycle-google-maps",
-<<<<<<< HEAD
-  "version": "0.0.7",
-  "description": "CycleJS driver for Google Maps V3 using jsondiffpatch",
-=======
   "version": "3.0.0",
   "description": "CycleJS driver for Google Maps API V3 using jsondiffpatch",
->>>>>>> unified
   "jsnext:main": "./lib/es6/main.js",
   "main": "./lib/cjs/main.js",
   "esnext:types": "./lib/es6/main.d.ts",
@@ -34,15 +29,9 @@
   },
   "homepage": "https://github.com/ntilwalli/cycle-google-maps#readme",
   "dependencies": {
-<<<<<<< HEAD
-    "@cycle/rxjs-adapter": "^3.0.3",
-    "jsondiffpatch": "^0.2.4",
-    "rxjs": "^5.2.0"
-=======
     "@cycle/run": "^3.4.0",
     "jsondiffpatch": "^0.2.5",
     "rxjs": "^5.5.2"
->>>>>>> unified
   },
   "devDependencies": {
     "@cycle/dom": "^19.3.0",
