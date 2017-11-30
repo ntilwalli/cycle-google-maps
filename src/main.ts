@@ -190,14 +190,7 @@ function patch(diff_map, previousDescriptor, descriptor) {
       patchMap(diff_map, map, descriptor.map)
     }
 
-    if (map) {
-      patchMap(diffMap, map, descriptor.map)
-    }
-
     if (markers) {
-<<<<<<< HEAD
-      patchMarkers(diffMap, markers, descriptor.markers)
-=======
       if (Array.isArray(markers)) {
         if (markers.length === 1) {
           addMarkers(markers[0], diff_map)
@@ -233,7 +226,6 @@ function patch(diff_map, previousDescriptor, descriptor) {
       } else {
         patchInfoWindows(diff_map, info_windows, descriptor.info_windows)
       }
->>>>>>> unified
     }
   } else {
     google.maps.event.trigger(diff_map, 'resize')
@@ -246,16 +238,6 @@ function patch(diff_map, previousDescriptor, descriptor) {
   return descriptor
 }
 
-<<<<<<< HEAD
-function patchMap(diffMap, delta, descriptor) {
-  if (delta) {
-    console.log('map delta', delta)
-    if (delta.center) {
-      diffMap.setCenter(normalizeLngLat(descriptor.center))
-    }
-  }
-}
-=======
 const TOLERANCE = .0005
 
 const toLngLat = x => {
@@ -284,7 +266,6 @@ function patchMap(diff_map, map_delta, map_descriptor) {
   }
 }
 
->>>>>>> unified
 
 function patchMarkers(diff_map, delta, descriptor) {
   if (delta) {
@@ -521,27 +502,9 @@ function addDescriptorToQueue(anchor, descriptor) {
   (<any> anchor).descriptor_queue.push(descriptor)
 }
 
-<<<<<<< HEAD
-      const map_markers = {}
-      if (markers) {
-        if (typeof markers === 'object' && markers !== null) {
-          Object.keys(markers).forEach(key => {
-            const m = markers[key]
-            map_markers[key] = new google.maps.Marker({
-              ...m,
-              position: normalizeLngLat(m.position),
-              map: diffMap
-            })
-          }) 
-        } else {
-          throw new Error ('Descriptor markers must be an object')
-        }
-      }
-=======
 function isLoading(anchor) {
   return (<any> anchor).loading === true
 }
->>>>>>> unified
 
 function processQueue(anchor) {
   const descriptor_queue = (<any> anchor).descriptor_queue
@@ -753,20 +716,7 @@ export function makeMapJSONDriver(accessToken?: string) {
   //   mapboxgl.accessToken = accessToken
   // }
 
-<<<<<<< HEAD
-  function mapJSONDriver(descriptor$, runSA?) {
-
-    let adapted$
-    if (runSA) {
-      adapted$ = rxjsSA.adapt(descriptor$, runSA.streamSubscribe)
-        .publishReplay(1).refCount()
-    } else {
-      adapted$ = descriptor$
-        .publishReplay(1).refCount()
-    }
-=======
   function mapJSONDriver(descriptor$) {
->>>>>>> unified
 
     let adapted$ = O.from(descriptor$).publishReplay(1).refCount()
     const applied$ = renderRawRootElem$(adapted$, accessToken)

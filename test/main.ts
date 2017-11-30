@@ -44,11 +44,6 @@ function model(actions) {
     }
   })
 
-<<<<<<< HEAD
-  const markers = {
-    "1": {
-      position: {lng: -74.5, lat: 40}
-=======
   const drag_r = actions.drag$.map(ev => state => {
     console.log(ev)
     return state
@@ -69,7 +64,6 @@ function model(actions) {
           position: ev.position
         }
       }
->>>>>>> unified
     }
   })
 
@@ -159,9 +153,5 @@ const copy = v => JSON.parse(JSON.stringify(v))
 
 run(main, {
   DOM: makeDOMDriver(`#app`),
-<<<<<<< HEAD
-  MapJSON: makeMapJSONDriver(`AIzaSyBsiEUUhXmkIONHhWErFekOuSSz3-GKAIU`)
-=======
   MapJSON: makeMapJSONDriver()
->>>>>>> unified
 })
